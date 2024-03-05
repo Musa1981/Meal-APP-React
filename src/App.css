@@ -1,0 +1,102 @@
+  .App  {
+    background-color: burlywood;
+    align-items: center;
+    font-size: 17px;
+    font-weight: bold;
+    color: rgb(54, 3, 23);
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    
+  }
+  .search-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  
+  .meal-item {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 10px;
+    transition: transform 0.3s ease;
+  }
+  
+  .meal-item:hover {
+    transform: translateY(-5px);
+  }
+  
+  .meal-item img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+  } 
+
+  
+  
+  .meal-item p {
+    margin-top: 10px;
+  }
+  
+  
+  .meal-details {
+    margin-top: 20px;
+  }
+  
+  .meal-details h3 {
+    margin-bottom: 10px;
+  }
+  
+  
+.meal-details {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    text-align: center; 
+  }
+  
+  .meal-details img {
+    max-width: 300px; 
+    max-height: 300px; 
+    margin-bottom: 20px; 
+    
+  }
+  
+
+.RandomMeal {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    text-align: center; 
+  }
+  
+  .RandomMeal img {
+    max-width: 300px; 
+    max-height: 300px; 
+    margin-bottom: 20px; 
+  }
+
+.CulturalMeals {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    text-align: center; 
+}
+
+  .CulturalMeals li {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .CulturalMeals li:hover{
+    background-color: rgb(131, 60, 74);
+  }
+
+.CulturalMeals img {
+    max-width: 300px; 
+    max-height: 300px; 
+    margin-bottom: 20px; 
+
+}  
+  
+  

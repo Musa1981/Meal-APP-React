@@ -2,21 +2,36 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Form, Button } from 'react-bootstrap';
 
+
 function SearchMeal() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedMeal, setSelectedMeal] = useState(null);
 
-
-// Funktion för att hantera inlämning av sökformulär
+  // Funktion för att hantera inlämning av sökformulär
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (searchTerm.trim() !== '') { // Kontrollera om söktermen är tom
+      try {
+        const response = await axios.get(`https://www.themealdb.com/api/json/v1/1/search.php?s=${searchTerm}`);
+        setSearchResults(response.data.meals || []);
+        setSelectedMeal(null); // Radera vald maträtt när ny sökning körs
+      } catch (error) {
+        console.error('Error searching meals:', error);
+      }
+    } else {
+      setSearchResults([]); // Rensa sökresultaten om söktermen är tom
+    }
+  };
+
+  // Funktion för att hämta en slumpmässig måltid
+  const handleRandomMeal = async () => {
     try {
-      const response = await axios.get(`https://www.themealdb.com/api/json/v1/1/search.php?s=${searchTerm}`);
-      setSearchResults(response.data.meals || []);
-      setSelectedMeal(null); // raderar vald maträtt när ny sökning körs
+      const response = await axios.get(`https://www.themealdb.com/api/json/v1/1/random.php`);
+      setSelectedMeal(response.data.meals[0]);
+      setSearchResults([]); // Rensa sökresultaten när en slumpmässig måltid hämtas
     } catch (error) {
-      console.error('Error searching meals:', error);
+      console.error('Error fetching random meal:', error);
     }
   };
 
@@ -27,7 +42,6 @@ function SearchMeal() {
 
   return (
     <div className="SearchMeal">
-      <h2>Search Meal</h2>
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="formBasicSearch">
           <Form.Control
@@ -41,10 +55,17 @@ function SearchMeal() {
           Search
         </Button>
       </Form>
+      <Button variant="success" onClick={handleRandomMeal}>
+        Random Meal
+      </Button>
       <div className="search-results">
         {searchResults.map((result) => (
-          <div key={result.idMeal} className="meal-item" onClick={() => handleMealClick(result)}>
-            <img src={result.strMealThumb} alt={result.strMeal} />
+          <div key={result.idMeal} className="meal-item">
+            <img
+              src={result.strMealThumb}
+              alt={result.strMeal}
+              onClick={() => handleMealClick(result)}
+            />
             <p>{result.strMeal}</p>
           </div>
         ))}
@@ -62,4 +83,4 @@ function SearchMeal() {
   );
 }
 
-export default SearchMeal; 
+export default SearchMeal;

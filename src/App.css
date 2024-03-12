@@ -26,13 +26,6 @@ body {
   
 }
 
-.search-results {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  
-}
 
 .meal-item {
   text-align: center;
@@ -46,9 +39,10 @@ body {
 
 .meal-item p {
   margin-top: 10px;
-  text-align: justify; /* Justify text for better readability */
-  word-break: break-all; /* Break words if they exceed container width */
+  text-align: justify;
+  word-break: break-all; 
 }
+
 .meal-details {
   margin-top: 20px;
   text-align: center;
@@ -63,6 +57,10 @@ body {
   max-height: 300px;
   margin-bottom: 20px;
   border-radius: 25%;
+}
+
+.meal-details-ul {
+  list-style-type: none;
 }
 
 .RandomMeal {

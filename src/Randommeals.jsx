@@ -68,7 +68,7 @@ function RandomMeal() {
           {imageLoaded ? <img src={meal.strMealThumb} alt={meal.strMeal} /> : <p>Loading image...</p>}
           {/* Visa ingredienser */}
           <h4>Ingredients:</h4>
-          <ul>
+          <ul className='meal-details-ul'>
             {ingredients.map((ingredient, index) => (
               <li key={index}>{ingredient.measure} {ingredient.ingredient}</li>
             ))}

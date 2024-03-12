@@ -86,7 +86,7 @@ function SearchMeal() {
             <h3>{selectedMeal.strMeal}</h3>
             <img src={selectedMeal.strMealThumb} alt={selectedMeal.strMeal} />
             <h4>Ingredients:</h4>
-            <ul>
+            <ul className="meal-details-ul">
               {ingredients.map((ingredient, index) => (
                 <li key={index}>{ingredient.measure} {ingredient.ingredient}</li>
               ))}

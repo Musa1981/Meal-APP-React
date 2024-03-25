@@ -9,15 +9,7 @@ function RandomMeal() {
 
   useEffect(() => {
     if (meal) {
-      // Om det finns en måltid, ladda bilden
-      const image = new Image();
-      image.src = meal.strMealThumb;
-      image.onload = () => {
-        setImageLoaded(true);
-      };
-      image.onerror = () => {
-        console.error('Error loading image');
-      };
+      setImageLoaded(true);
     }
   }, [meal]);
 

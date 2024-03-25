@@ -8,8 +8,8 @@ function SearchMeal() {
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [ingredients, setIngredients] = useState([]);
 
-  // Funktion för att hantera inlämning av sökformulär
-  const handleSubmit = async (event) => {
+  // Funktion för att hantera klick på sökknappen
+  const clickHandler = async (event) => {
     event.preventDefault();
     if (searchTerm.trim() !== '') { // Kontrollera om söktermen är tom
       try {
@@ -55,7 +55,7 @@ function SearchMeal() {
 
   return (
     <div className="SearchMeal">
-      <Form onSubmit={handleSubmit}>
+      <Form>
         <Form.Group controlId="formBasicSearch">
           <Form.Control
             type="text"
@@ -64,7 +64,7 @@ function SearchMeal() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </Form.Group>
-        <Button variant="primary" type="submit">
+        <Button variant="primary" onClick={clickHandler}>
           Search
         </Button>
       </Form>

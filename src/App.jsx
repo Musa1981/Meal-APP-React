@@ -1,6 +1,6 @@
 import React from 'react';
 import SearchMeal from './SearchMeal';
-import RandomMeal from './RandomMeals';
+import RandomMeal from './RandomMeal';
 
 
 

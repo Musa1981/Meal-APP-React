@@ -33,8 +33,8 @@ const SearchMeal = () => {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-4">
       <h2 className="text-center mb-4">Search Meal</h2>
       <Form onSubmit={searchMeal} className="mb-4">
-        <Row>
-          <Col xs={9}>
+        <Row className="justify-content-center">
+          <Col xs={10} md={6} lg={5}>
             <Form.Control
               type="text"
               placeholder="Enter meal name"
@@ -42,8 +42,8 @@ const SearchMeal = () => {
               onChange={(e) => setQuery(e.target.value)}
             />
           </Col>
-          <Col xs={3}>
-            <Button variant="success" type="submit" className="w-100">
+          <Col xs="auto">
+            <Button variant="success" type="submit">
               Search
             </Button>
           </Col>
@@ -54,21 +54,26 @@ const SearchMeal = () => {
           <Spinner animation="border" variant="primary" />
         </div>
       ) : (
-        <Row xs={1} md={2} lg={3} className="g-4">
+        <Row xs={1} md={2} lg={3} className="g-4 justify-content-center">
           {meals.map((meal) => (
-            <Col key={meal.idMeal}>
+            <Col key={meal.idMeal} className="d-flex justify-content-center">
+
               <Card className="h-100 shadow-sm">
-                <div style={{ height: '200px', overflow: 'hidden' }}>
-                  <Card.Img
-                    variant="top"
-                    src={meal.strMealThumb}
-                    alt={meal.strMeal}
-                    style={{ height: '100%', objectFit: 'cover' }}
-                  />
-                </div>
+                <Card.Img
+                  variant="top"
+                  src={meal.strMealThumb}
+                  alt={meal.strMeal}
+                  style={{ maxHeight: '200px', objectFit: 'cover' }}
+                />
                 <Card.Body>
                   <Card.Title>{meal.strMeal}</Card.Title>
                   <Card.Text>{meal.strInstructions.substring(0, 100)}...</Card.Text>
+                  <Card.Text>
+                    <strong>Ingredienser:</strong><br />
+                    {getIngredients(meal).slice(0, 3).map((i, idx) => (
+                      <span key={idx}>{i}<br /></span>
+                    ))}
+                  </Card.Text>
                   <div className="d-flex gap-2">
                     <Button variant="info" onClick={() => setSelectedMeal(meal)}>Visa recept</Button>
                     <a href={meal.strYoutube} target="_blank" rel="noopener noreferrer">
@@ -84,7 +89,7 @@ const SearchMeal = () => {
 
       {selectedMeal && (
         <Modal show={true} onHide={() => setSelectedMeal(null)} size="lg" centered>
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
             <Modal.Header closeButton>
               <Modal.Title>{selectedMeal.strMeal}</Modal.Title>
             </Modal.Header>
@@ -92,8 +97,8 @@ const SearchMeal = () => {
               <img
                 src={selectedMeal.strMealThumb}
                 alt={selectedMeal.strMeal}
-                className="img-fluid mb-3 rounded"
-                style={{ maxHeight: '300px', objectFit: 'cover', width: '100%' }}
+                className="img-fluid mb-3 rounded d-block mx-auto"
+                style={{ maxHeight: '200px', objectFit: 'contain' }}
               />
               <h5>Ingredienser:</h5>
               <ul>

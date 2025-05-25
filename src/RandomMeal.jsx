@@ -41,17 +41,23 @@ const RandomMeal = () => {
       ) : meal ? (
         <>
           <Card className="shadow-sm">
-            <div style={{ height: '200px', overflow: 'hidden' }}>
-              <Card.Img
-                variant="top"
+            <div className="text-center p-3">
+              <img
                 src={meal.strMealThumb}
                 alt={meal.strMeal}
-                style={{ maxHeight: '200px', objectFit: 'contain', width: '100%', padding: '1rem' }}
+                className="rounded shadow-sm"
+                style={{ maxWidth: '100%', maxHeight: '220px', borderRadius: '1rem', objectFit: 'contain' }}
               />
             </div>
             <Card.Body>
               <Card.Title>{meal.strMeal}</Card.Title>
-              <Card.Text>{meal.strInstructions.substring(0, 120)}...</Card.Text>
+              <Card.Text>{meal.strInstructions.substring(0, 100)}...</Card.Text>
+              <Card.Text>
+                <strong>Ingredienser:</strong><br />
+                {getIngredients(meal).slice(0, 3).map((i, idx) => (
+                  <span key={idx}>{i}<br /></span>
+                ))}
+              </Card.Text>
               <div className="d-flex gap-2">
                 <Button variant="info" onClick={() => setShowModal(true)}>Visa recept</Button>
                 <a href={meal.strYoutube} target="_blank" rel="noopener noreferrer">
@@ -62,7 +68,7 @@ const RandomMeal = () => {
           </Card>
 
           <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
               <Modal.Header closeButton>
                 <Modal.Title>{meal.strMeal}</Modal.Title>
               </Modal.Header>

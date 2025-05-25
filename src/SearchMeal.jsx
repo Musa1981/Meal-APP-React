@@ -1,102 +1,119 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { Form, Button } from 'react-bootstrap';
+import { Card, Button, Form, Row, Col, Spinner, Modal } from 'react-bootstrap';
+import { motion } from 'framer-motion';
 
-function SearchMeal() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+const SearchMeal = () => {
+  const [query, setQuery] = useState('');
+  const [meals, setMeals] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState(null);
-  const [ingredients, setIngredients] = useState([]);
 
-  // Funktion för att hantera klick på sökknappen
-  const clickHandler = async (event) => {
-    event.preventDefault();
-    if (searchTerm.trim() !== '') { // Kontrollera om söktermen är tom
-      try {
-        const response = await axios.get(`https://www.themealdb.com/api/json/v1/1/search.php?s=${searchTerm}`);
-        setSearchResults(response.data.meals || []);
-        setSelectedMeal(null); // Radera vald maträtt när ny sökning körs
-      } catch (error) {
-        console.error('Error searching meals:', error);
-      }
-    } else {
-      setSearchResults([]); // Rensa sökresultaten om söktermen är tom
-    }
+  const searchMeal = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const res = await fetch('https://www.themealdb.com/api/json/v1/1/search.php?s=' + query);
+    const data = await res.json();
+    setMeals(data.meals || []);
+    setLoading(false);
   };
 
-  // Funktion för att hämta ingredienser för den valda maträtten
-  const fetchIngredients = async (mealId) => {
-    try {
-      const response = await axios.get(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealId}`);
-      const mealData = response.data.meals[0];
-      // Extrahera ingredienser från måltidsdata
-      const mealIngredients = [];
-      for (let i = 1; i <= 20; i++) {
-        if (mealData[`strIngredient${i}`]) {
-          mealIngredients.push({
-            ingredient: mealData[`strIngredient${i}`],
-            measure: mealData[`strMeasure${i}`]
-          });
-        } else {
-          break;
-        }
+  const getIngredients = (meal) => {
+    const ingredients = [];
+    for (let i = 1; i <= 20; i++) {
+      const ingredient = meal[`strIngredient${i}`];
+      const measure = meal[`strMeasure${i}`];
+      if (ingredient && ingredient.trim()) {
+        ingredients.push(`${ingredient} - ${measure}`);
       }
-      setIngredients(mealIngredients);
-    } catch (error) {
-      console.error('Error fetching ingredients:', error);
     }
-  };
-
-  // Funktion för att hantera klick på en måltid
-  const handleMealClick = (meal) => {
-    setSelectedMeal(meal);
-    fetchIngredients(meal.idMeal); // Hämta ingredienser för den valda maträtten
+    return ingredients;
   };
 
   return (
-    <div className="SearchMeal">
-      <Form>
-        <Form.Group controlId="formBasicSearch">
-          <Form.Control
-            type="text"
-            placeholder="Enter meal name"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </Form.Group>
-        <Button variant="primary" onClick={clickHandler}>
-          Search
-        </Button>
-      </Form>
-      <div className="search-results">
-        {searchResults.map((result) => (
-          <div key={result.idMeal} className="meal-item">
-            <img
-              src={result.strMealThumb}
-              alt={result.strMeal}
-              onClick={() => handleMealClick(result)}
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-4">
+      <h2 className="text-center mb-4">Search Meal</h2>
+      <Form onSubmit={searchMeal} className="mb-4">
+        <Row>
+          <Col xs={9}>
+            <Form.Control
+              type="text"
+              placeholder="Enter meal name"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
-            <p>{result.strMeal}</p>
-          </div>
-        ))}
-      </div>
-      <div className="meal-details">
-        {selectedMeal && (
-          <div>
-            <h3>{selectedMeal.strMeal}</h3>
-            <img src={selectedMeal.strMealThumb} alt={selectedMeal.strMeal} />
-            <h4>Ingredients:</h4>
-            <ul className="meal-details-ul">
-              {ingredients.map((ingredient, index) => (
-                <li key={index}>{ingredient.measure} {ingredient.ingredient}</li>
-              ))}
-            </ul>
-            <p>{selectedMeal.strInstructions}</p>
-          </div>
-        )}
-      </div>
-    </div>
+          </Col>
+          <Col xs={3}>
+            <Button variant="success" type="submit" className="w-100">
+              Search
+            </Button>
+          </Col>
+        </Row>
+      </Form>
+      {loading ? (
+        <div className="text-center">
+          <Spinner animation="border" variant="primary" />
+        </div>
+      ) : (
+        <Row xs={1} md={2} lg={3} className="g-4">
+          {meals.map((meal) => (
+            <Col key={meal.idMeal}>
+              <Card className="h-100 shadow-sm">
+                <div style={{ height: '200px', overflow: 'hidden' }}>
+                  <Card.Img
+                    variant="top"
+                    src={meal.strMealThumb}
+                    alt={meal.strMeal}
+                    style={{ height: '100%', objectFit: 'cover' }}
+                  />
+                </div>
+                <Card.Body>
+                  <Card.Title>{meal.strMeal}</Card.Title>
+                  <Card.Text>{meal.strInstructions.substring(0, 100)}...</Card.Text>
+                  <div className="d-flex gap-2">
+                    <Button variant="info" onClick={() => setSelectedMeal(meal)}>Visa recept</Button>
+                    <a href={meal.strYoutube} target="_blank" rel="noopener noreferrer">
+                      <Button variant="primary">YouTube</Button>
+                    </a>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
+
+      {selectedMeal && (
+        <Modal show={true} onHide={() => setSelectedMeal(null)} size="lg" centered>
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+            <Modal.Header closeButton>
+              <Modal.Title>{selectedMeal.strMeal}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <img
+                src={selectedMeal.strMealThumb}
+                alt={selectedMeal.strMeal}
+                className="img-fluid mb-3 rounded"
+                style={{ maxHeight: '300px', objectFit: 'cover', width: '100%' }}
+              />
+              <h5>Ingredienser:</h5>
+              <ul>
+                {getIngredients(selectedMeal).map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+              <h5 className="mt-4">Instruktioner:</h5>
+              <p>{selectedMeal.strInstructions}</p>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setSelectedMeal(null)}>
+                Stäng
+              </Button>
+            </Modal.Footer>
+          </motion.div>
+        </Modal>
+      )}
+    </motion.div>
   );
-}
+};
 
 export default SearchMeal;

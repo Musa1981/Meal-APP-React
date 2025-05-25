@@ -1,76 +1,98 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Button } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Card, Button, Spinner, Modal } from 'react-bootstrap';
 
-function RandomMeal() {
+const RandomMeal = () => {
   const [meal, setMeal] = useState(null);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [ingredients, setIngredients] = useState([]); // Lägg till ingredienser
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const fetchMeal = async () => {
+    setLoading(true);
+    const res = await fetch('https://www.themealdb.com/api/json/v1/1/random.php');
+    const data = await res.json();
+    setMeal(data.meals[0]);
+    setLoading(false);
+  };
+
+  const getIngredients = (meal) => {
+    const ingredients = [];
+    for (let i = 1; i <= 20; i++) {
+      const ingredient = meal[`strIngredient${i}`];
+      const measure = meal[`strMeasure${i}`];
+      if (ingredient && ingredient.trim()) {
+        ingredients.push(`${ingredient} - ${measure}`);
+      }
+    }
+    return ingredients;
+  };
 
   useEffect(() => {
-    if (meal) {
-      setImageLoaded(true);
-    }
-  }, [meal]);
-
-  const fetchRandomMeal = async () => {
-    try {
-      const response = await axios.get('https://www.themealdb.com/api/json/v1/1/random.php');
-      setMeal(response.data.meals[0]);
-      setImageLoaded(false); // Återställ imageLoaded till false för att ladda bilden igen
-      fetchIngredients(response.data.meals[0].idMeal); // Hämta ingredienser för den slumpmässiga måltiden
-    } catch (error) {
-      console.error('Error fetching random meal:', error);
-    }
-  };
-
-  const fetchIngredients = async (mealId) => { // Funktion för att hämta ingredienser
-    try {
-      const response = await axios.get(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealId}`);
-      const mealData = response.data.meals[0];
-      // Extrahera ingredienser från måltidsdata
-      const mealIngredients = [];
-      for (let i = 1; i <= 20; i++) {
-        if (mealData[`strIngredient${i}`]) {
-          mealIngredients.push({
-            ingredient: mealData[`strIngredient${i}`],
-            measure: mealData[`strMeasure${i}`]
-          });
-        } else {
-          break;
-        }
-      }
-      setIngredients(mealIngredients);
-    } catch (error) {
-      console.error('Error fetching ingredients:', error);
-    }
-  };
-
-  const handleRandomMeal = async () => {
-    await fetchRandomMeal();
-  };
+    fetchMeal();
+  }, []);
 
   return (
-    <div className="RandomMeal">
-      <Button variant="primary" onClick={handleRandomMeal}>Random Meal</Button>
-      {meal && (
-        <div>
-          <h2>Random Meal</h2>
-          <h3>{meal.strMeal}</h3>
-          {imageLoaded ? <img src={meal.strMealThumb} alt={meal.strMeal} /> : <p>Loading image...</p>}
-          {/* Visa ingredienser */}
-          <h4>Ingredients:</h4>
-          <ul className='meal-details-ul'>
-            {ingredients.map((ingredient, index) => (
-              <li key={index}>{ingredient.measure} {ingredient.ingredient}</li>
-            ))}
-          </ul>
-          <p>{meal.strInstructions}</p>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-4">
+      <h2 className="text-center mb-4">Random Meal</h2>
+      {loading ? (
+        <div className="text-center">
+          <Spinner animation="border" variant="primary" />
         </div>
+      ) : meal ? (
+        <>
+          <Card className="shadow-sm">
+            <div style={{ height: '200px', overflow: 'hidden' }}>
+              <Card.Img
+                variant="top"
+                src={meal.strMealThumb}
+                alt={meal.strMeal}
+                style={{ maxHeight: '200px', objectFit: 'contain', width: '100%', padding: '1rem' }}
+              />
+            </div>
+            <Card.Body>
+              <Card.Title>{meal.strMeal}</Card.Title>
+              <Card.Text>{meal.strInstructions.substring(0, 120)}...</Card.Text>
+              <div className="d-flex gap-2">
+                <Button variant="info" onClick={() => setShowModal(true)}>Visa recept</Button>
+                <a href={meal.strYoutube} target="_blank" rel="noopener noreferrer">
+                  <Button variant="primary">YouTube</Button>
+                </a>
+              </div>
+            </Card.Body>
+          </Card>
+
+          <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+              <Modal.Header closeButton>
+                <Modal.Title>{meal.strMeal}</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <img
+                  src={meal.strMealThumb}
+                  alt={meal.strMeal}
+                  className="img-fluid mb-3 rounded d-block mx-auto"
+                  style={{ maxHeight: '200px', objectFit: 'contain' }}
+                />
+                <h5>Ingredienser:</h5>
+                <ul>
+                  {getIngredients(meal).map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+                <h5 className="mt-4">Instruktioner:</h5>
+                <p>{meal.strInstructions}</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowModal(false)}>Stäng</Button>
+              </Modal.Footer>
+            </motion.div>
+          </Modal>
+        </>
+      ) : (
+        <p>Ingen måltid hittades.</p>
       )}
-    </div>
+    </motion.div>
   );
-}
+};
 
 export default RandomMeal;
-
